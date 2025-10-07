@@ -1,13 +1,10 @@
 import requests
 import json
 import bs4
-import os
-from dotenv import load_dotenv
 
 def scraper():
     # api key and url for google scholar web scraper to retrieve training data
-    load_dotenv()
-    KEY = os.get_key("API_KEY")
+    KEY = "68e1780dc54b268365d014fa"
     url = "https://api.scrapingdog.com/google_scholar"
 
     params = {
