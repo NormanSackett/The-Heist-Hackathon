@@ -1,43 +1,47 @@
 import random
 import numpy as np
 
-class node():
-    def __init__ (self, weight_arr, bias_arr, activation_func):
-        self.weight_arr = weight_arr
-        self.bias_arr = bias_arr
-        self.activation_func = activation_func
+"""each neuron contains weights and biases to apply to the inputs
+as well as an activation function to apply to the weighted sum of inputs + biases
+You can have a default input layer by inputting nothing for any of the parameters"""
+class neuron():
+    def __init__ (self, weight=1, bias=0, act_func=None):
+        self.weight = weight
+        self.bias = bias
+        self.act_func = act_func
+
+    def activate(self, input):
+        x = np.dot(input, self.weight) + self.bias
+        return self.act_func(x)
+
+"""each layer initializes a number of neurons with random weights and biases
+and a specified activation function"""
+class layer():
+    def __init__ (self, neuron_num, activation=None):
+        if activation is None:
+            self.neurons = [neuron() for _ in range(neuron_num)]
+        else:
+            self.neurons = [neuron(np.array([random.random(), random.random()] for _ in range(neuron_num))), activation]
+
+    def forward_prop(self, inputs):
+        outputs = [neuron.activate(inputs) for neuron in self.neurons]
+        return np.array(outputs)
+
+"""the network initializes layers with specified sizes and activation functions"""
+class network():
+    def __init__ (self, sizes, activations):
+        self.activations[0] = None #input layer is declared as default neurons
+        self.activations.append(activations)
+        for i in range(len(sizes) - 1):
+            self.layers.append(layer(sizes[i], activations[i]))
+            
 
 def construct_layers():
-    input_layer = np.array([])
-    layer_one = np.array([])
-    layer_two = np.array([])
-    output_layer = np.array([])
-    for i in range(1024): # first layer generation for input of 1024 words
-        np.append(input_layer,
-                  node(np.array([random.random() for i in range(512)]),
-                  np.array([random.random() for i in range(512)]),
-                  ReLU))
-        
-def ReLU(x):
-    return np.maximum(0, x)
+    layers = [1024, 512, 512, 512, 1024] #temp layer sizes
+    act_funcs = [ReLU, ReLU, GELU, GELU] #functions are passed to neurons
+    neural_net = network(layers, act_funcs)
 
-def GELU(x):
-    return .5 * x * (1 + np.tanh(np.sqrt(2 / np.pi) * (x + 0.044715 * np.power(x, 3))))
-
-
-def dReLU(x):
-    """Derivative of ReLU w.r.t. its input z."""
-    return (x > 0).astype(float)
-
-
-def dGELU(x):
-    """Exact-ish derivative of GELU using the erf-based formula.
-
-    Uses the identity: GELU(x) = 0.5 * x * (1 + erf(x/sqrt(2)))
-    derivative = 0.5 * (1 + erf(x/sqrt(2))) + (x / sqrt(2*pi)) * exp(-x**2/2)
-    """
-    return 0.5 * (1.0 + np.erf(x / np.sqrt(2.0))) + (x * np.exp(-0.5 * x * x) / np.sqrt(2.0 * np.pi))
-
+    
 
 def init_network(sizes, activation='relu', seed=None):
     """Initialize a fully-connected feed-forward network.
@@ -66,6 +70,26 @@ def init_network(sizes, activation='relu', seed=None):
     activations = [act for _ in sizes[1:]]
     activation_primes = [dact for _ in sizes[1:]]
     return weights, biases, activations, activation_primes
+        
+def ReLU(x):
+    return np.maximum(0, x)
+
+def GELU(x):
+    return .5*x*(1 + np.erf(x/np.sqrt(x)))
+
+
+def dReLU(x):
+    """Derivative of ReLU w.r.t. its input z."""
+    return (x > 0).astype(float)
+
+
+def dGELU(x):
+    """Exact-ish derivative of GELU using the erf-based formula.
+
+    Uses the identity: GELU(x) = 0.5 * x * (1 + erf(x/sqrt(2)))
+    derivative = 0.5 * (1 + erf(x/sqrt(2))) + (x / sqrt(2*pi)) * exp(-x**2/2)
+    """
+    return 0.5 * (np.erf(x / np.sqrt(2.0))) + (x * np.exp(-0.5 * x * x) / np.sqrt(2.0 * np.pi)) + .5
 
 
 def forward(weights, biases, activations, x):
