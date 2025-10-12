@@ -12,7 +12,7 @@ class neuron():
 
     def activate(self, input):
         x = np.dot(input, self.weight) + self.bias
-        return self.act_func(x)
+        return x, self.act_func(x) #returning both pre-activation and post-activation values
 
 """each layer initializes a number of neurons with random weights and biases
 and a specified activation function"""
@@ -24,8 +24,10 @@ class layer():
             self.neurons = [neuron(np.array([random.random(), random.random()] for _ in range(neuron_num))), activation]
 
     def forward_prop(self, inputs):
-        outputs = [neuron.activate(inputs) for neuron in self.neurons]
-        return np.array(outputs)
+        pre_act, outputs = [neuron.activate(inputs) for neuron in self.neurons]
+        return pre_act, outputs
+
+
 
 """the network initializes layers with specified sizes and activation functions"""
 class network():
@@ -34,7 +36,41 @@ class network():
         self.activations.append(activations)
         for i in range(len(sizes) - 1):
             self.layers.append(layer(sizes[i], activations[i]))
+
+    def predict(self, inputs):
+        layer_vec = inputs #vector of inputs to the layer, begins as initial inputs
+        pre_act = [] #list of pre-activation values for each layer
+        for layer in self.layers:
+            pre_act, layer_vec = layer.forward_prop(layer_vec)
+        return pre_act, layer_vec #pre-activation values used for backpropagation
             
+            
+def backward_prop(network, inputs, activation_derivs, lr=1e-2):
+    pre_act, output = network.predict(inputs)
+    output_index = len(network.layers) - 1
+    weights = [neuron.weight for layer in network.layers for neuron in layer.neurons]
+    biases = [neuron.bias for layer in network.layers for neuron in layer.neurons]
+
+    a_L = output[-1]
+    dL_da = mse_loss_derivative(a_L, y) #TODO: figure out what the hell y iss
+    d_act = activation_derivs[output_index](pre_act[output_index])
+    delta = dL_da * d_act
+
+    for l in range(output_index, -1, -1):
+        a_prev = output[l]
+        # gradient w.r.t. weights and biases
+        dW = np.outer(delta, a_prev)
+        db = delta
+        # update parameters
+        weights[l] = weights[l] - lr * dW
+        biases[l] = biases[l] - lr * db
+
+        if l > 0:
+            # propagate delta to previous layer
+            delta = weights[l].T.dot(delta) * activation_derivs[l-1](pre_act[l-1])
+
+    return weights, biases
+
 
 def construct_layers():
     layers = [1024, 512, 512, 512, 1024] #temp layer sizes
