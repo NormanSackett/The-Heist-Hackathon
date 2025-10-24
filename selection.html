@@ -8,14 +8,14 @@
   body {
     margin: 0;
     height: 100vh;
-    background: #0c330c;
+    background: #024240;
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: column;
     box-sizing: border-box;
     position: relative;
-    color: #00ff00;
+    color: #00ff8e;
     font-family: Arial, sans-serif;
   }
 
@@ -27,10 +27,10 @@
     right: 0;
     bottom: 0;
     background: 
-      linear-gradient(to bottom, #00ff00, transparent 50px),
-      linear-gradient(to top, #00ff00, transparent 50px),
-      linear-gradient(to right, #00ff00, transparent 50px),
-      linear-gradient(to left, #00ff00, transparent 50px);
+      linear-gradient(to bottom, #00ff8e, transparent 50px),
+      linear-gradient(to top, #00ff8e, transparent 50px),
+      linear-gradient(to right, #00ff8e, transparent 50px),
+      linear-gradient(to left, #00ff8e, transparent 50px);
     z-index: 10;
     pointer-events: none;
   }
@@ -47,20 +47,108 @@
     width: auto;
     height: auto;
     margin-bottom: 10px;
-    border: 3px solid #00ff00;
+    border: 3px solid #00ff8e;
     cursor: pointer;
+    opacity: 0;
+    transition: opacity 1s ease; 
   }
 
-  .content h1 {
-    margin: 0;
-    font-size: 32px;
+  .fade-in {
+    opacity: 1 !important;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 32px 32px;
+    justify-items: center;
+    align-items: center;
+    width: 900px;
+    max-width: 98vw;
+    margin: 0 auto;
+    position: relative;
+    z-index: 20;
+  }
+
+  .grid-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 1s ease;
+  }
+
+  .grid-item.fade-in {
+    opacity: 1 !important;
+  }
+
+  .grid-item.fade-out {
+    opacity: 0 !important;
+    pointer-events: none;
+    transition: opacity 1s ease;
+  }
+
+  .grid-item img {
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+    border: 3px solid #00ff8e;
+    background: #013c36;
+    margin-bottom: 10px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px #013c3640;
+  }
+
+  .grid-item span {
+    color: #00ff8e;
+    font-size: 18px;
+    margin-top: 0;
+    text-align: center;
+    font-family: Arial, sans-serif;
+    font-weight: 500;
+    letter-spacing: 0.5px;
   }
 </style>
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+    const items = document.querySelectorAll('.grid-item');
+    setTimeout(() => {
+      items.forEach(item => item.classList.add('fade-in'));
+    }, 50);
+
+    items.forEach(item => {
+      item.addEventListener('click', () => {
+        items.forEach(i => {
+          i.classList.remove('fade-in');
+          i.classList.add('fade-out');
+        });
+        const img = item.querySelector('img');
+        let iconName = img.getAttribute('src')
+          .replace(/^icons\//i, '')
+          .replace(/\.[^.]+$/, '');
+        setTimeout(() => {
+          window.location.href = `${iconName}.html`;
+        }, 1000);
+      });
+    });
+  });
+</script>
 </head>
 <body>
-  <div class="content">
-    <img src="Icons/mri.png" alt="MRI Scanner" onclick="">
-    <h1>MRI Scanner</h1>
+  <div class="grid">
+  <div class="grid-item"><img src="icons/mri.jpg" alt="MRI machines"><span>MRI Machines</span></div>
+  <div class="grid-item"><img src="icons/ct.jpg" alt="CT scanners"><span>CT Scanners</span></div>
+  <div class="grid-item"><img src="icons/xray.jpg" alt="X-Ray machines"><span>X-Ray Machines</span></div>
+  <div class="grid-item"><img src="icons/ultrasound.jpg" alt="Ultrasound machines"><span>Ultrasound Machines</span></div>
+  <div class="grid-item"><img src="icons/labrobot.jpg" alt="Lab robots"><span>Lab Robots</span></div>
+  <div class="grid-item"><img src="icons/patientmonitor.jpg" alt="Patient monitors"><span>Patient Monitors</span></div>
+  <div class="grid-item"><img src="icons/infusionpump.jpg" alt="Infusion pumps"><span>Infusion Pumps</span></div>
+  <div class="grid-item"><img src="icons/ventilator.jpg" alt="Ventilators"><span>Ventilators</span></div>
+  <div class="grid-item"><img src="icons/dialysis.jpg" alt="Dialysis machines"><span>Dialysis Machines</span></div>
+  <div class="grid-item"><img src="icons/surgicalrobot.jpg" alt="Surgical robots"><span>Surgical Robots</span></div>
+  <div class="grid-item"><img src="icons/ecg.jpg" alt="ECG machines"><span>ECG Machines</span></div>
+  <div class="grid-item"><img src="icons/anesthesia.jpg" alt="Anesthesia machines"><span>Anesthesia Machines</span></div>
   </div>
 </body>
 </html>
